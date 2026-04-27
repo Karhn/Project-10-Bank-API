@@ -2,11 +2,14 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { login } from "../features/userSlice"
 
 function SignIn() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -29,7 +32,9 @@ function SignIn() {
             const data = await response.json()
 
             if (data.status === 200) {
-                localStorage.setItem("token", data.body.token)
+                const token = data.body.token
+                localStorage.setItem("token", token)
+                dispatch(login(token))
                 navigate("/profile")
             } else {
                 alert("Erreur de connexion")

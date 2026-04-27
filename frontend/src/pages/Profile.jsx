@@ -2,13 +2,22 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../features/userSlice";
 
 function Profile() {
-    const [user, setUser] = useState(null)
+    const dispatch = useDispatch()
+    const user = useSelector(state => state.user.user)
+    const token = useSelector(state => state.user.token)
+
+    const [isEditing, setIsEditing] = useState(false)
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
 
     useEffect(() => {
+        if (!token) return
+
         const fetchUser = async () => {
-            const token = localStorage.getItem("token")
 
             try {
                 const response = await fetch(
@@ -22,17 +31,48 @@ function Profile() {
                 )
 
                 const data = await response.json()
-                console.log("DATA API:", data)
-                setUser(data.body)
+                dispatch(setUser(data.body))
             } catch (error) {
                 console.error("Erreur lors de la récupération des données", error)
             }
         }
         fetchUser()
-    }, [])
+    }, [dispatch, token])
 
     if (!user) {
         return <p> Loading ... </p>
+    }
+
+    const handleUpdate = async (e) => {
+        e.preventDefault()
+
+        try {
+            await fetch(
+                "http://localhost:3001/api/v1/user/profile",
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        firstName,
+                        lastName
+                    })
+                }
+            )
+
+            dispatch(setUser({
+                ...user,
+                firstName,
+                lastName
+            }))
+
+            setIsEditing(false)
+
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
@@ -42,8 +82,43 @@ function Profile() {
             <main className="main bg-dark">
 
                 <div className="header">
-                    <h1> Welcome back <br /> {user.firstName} {user.lastName} </h1>
-                    <button className="edit-button"> Edit Name </button>
+                    <h1> Welcome back </h1>
+
+                    {!isEditing && (
+                        <>
+
+                            <h2> {user.firstName} {user.lastName} ! </h2>
+
+                            <button className="edit-button" 
+                                onClick={() => {
+                                    setIsEditing(true)
+                                    setFirstName(user.firstName)
+                                    setLastName(user.lastName)
+                                }}>
+                                Edit Name 
+                            </button>
+
+                        </>
+                    )}
+                
+
+                {isEditing && (
+                    <form onSubmit={handleUpdate} className="profile-form">
+                        <div className="profile-inputs">
+                            <input type="text" value={firstName} placeholder={user.firstName} onChange={(e) => setFirstName(e.target.value)} />
+                            <input type="text" value={lastName} placeholder={user.lastName} onChange={(e) => setLastName(e.target.value)} />
+                        </div>
+
+                        <div className="profile-buttons">
+                            <button type="submit" className="edit-button"> Save </button>
+                            <button type="button" className="edit-button" 
+                            onClick={() => { setFirstName(user.firstName)
+                            setLastName(user.lastName)  
+                            setIsEditing(false)}}> Cancel </button>
+                        </div>
+                    </form>
+                )}
+
                 </div>
 
                 <h2 className="sr-only"> Accounts </h2>

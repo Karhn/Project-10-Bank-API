@@ -1,7 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../features/userSlice";
 import logo from "../assets/img/argentBankLogo.png";
 
 function Header() {
+
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+    const user = useSelector(state => state.user.user)
+
+    const handleLogout = () => {
+        dispatch(logout())
+        localStorage.removeItem("token")
+        navigate("/")
+    }
+
     return (
         <nav className="main-nav">
             <Link className="main-nav-logo" to="/">
@@ -14,10 +28,24 @@ function Header() {
             </Link>
 
             <div>
-                <Link className="main-nav-item" to="/sign-in">
-                    <i className="fa fa-user-circle"></i>
-                        Sign In 
-                </Link>
+                { user ? (
+                    <>
+                        <Link className="main-nav-item" to="/profile">
+                            <i className="fa fa-user-circle"></i>
+                                {user.firstName}
+                        </Link>
+
+                        <button className="main-nav-item" onClick={handleLogout}>
+                            <i className="fa fa-sign-out"></i>
+                                Sign Out
+                        </button>
+                    </>
+                ) : (
+                    <Link className="main-nav-item" to="/sign-in">
+                        <i className="fa fa-user-circle"></i>
+                            Sign In 
+                    </Link>
+                )}
             </div>
         </nav>
     )

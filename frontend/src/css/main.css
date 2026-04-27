@@ -6,11 +6,18 @@ html {
   color: #2c3e50;
 }
 
-body {
-  margin: 0;
+html, body, #root {
+  height: 100%;
+}
+
+.app {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+}
+
+body {
+  margin: 0;
 }
 
 .main {
@@ -18,7 +25,8 @@ body {
 }
 
 .bg-dark {
-  background-color: #12002b;
+  background-color: #00bc77;
+  width: 100%;
 }
 
 .sr-only {
@@ -39,7 +47,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 20px;
+  padding: 10px 30px;
 }
 
 .main-nav a {
@@ -53,7 +61,13 @@ body {
 
 .main-nav-item {
   text-decoration: none;
-  margin-right: 0.5rem;
+  margin-right: 1rem;
+  color: #2c3e50;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
 .main-nav-item:hover {
@@ -288,4 +302,37 @@ body {
   .transaction-button {
     width: 200px;
   }
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.profile-inputs input {
+  width: 200px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.profile-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.profile-buttons .edit-button {
+  background: white;
+  color: #6458f5;
+  border: 2px solid #6458f5;
+  padding: 8px 20px;
 }
