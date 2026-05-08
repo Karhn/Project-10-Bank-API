@@ -8,10 +8,10 @@ import iconSecurity from "../assets/img/icon-security.png";
 
 function Home() {
     return(
-        <>
+        <div className="app">
             <Header />
 
-            <main>
+            <main className="main">
                 <div className="hero">
                     <section className="hero-content">
                         <h2 className="sr-only"> Promoted Content </h2>
@@ -47,7 +47,7 @@ function Home() {
             </main>
 
             <Footer />
-        </>
+        </div>
     )
 }
 
