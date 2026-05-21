@@ -336,3 +336,11 @@ body {
   border: 2px solid #6458f5;
   padding: 8px 20px;
 }
+
+.error-message {
+  color: #d93025;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin: 0.5rem;
+  text-align: center;
+}

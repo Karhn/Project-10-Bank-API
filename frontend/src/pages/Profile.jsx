@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../features/userSlice";
 
+
 function Profile() {
     const dispatch = useDispatch()
     const user = useSelector(state => state.user.user)
@@ -13,6 +14,7 @@ function Profile() {
     const [isEditing, setIsEditing] = useState(false)
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
+    const [error, setError] = useState("")
 
     useEffect(() => {
         if (!token) return
@@ -43,8 +45,37 @@ function Profile() {
         return <p> Loading ... </p>
     }
 
+    const validateProfileFrom = () => {
+        const trimFirstName = firstName.trim()
+        const trimLastName = lastName.trim()
+
+        const nameRegex = /^[A-Za-zÀ-ÿ\s'-]+$/
+
+        if (!trimFirstName || !trimLastName) {
+            return "Le prénom et le nom ne peuvent pas être vides."
+        }
+
+        if (trimFirstName.length < 2 || trimLastName.length < 2) {
+            return "Le prénom et le nom doivent contenir au moins 2 caractères."
+        }
+
+        if (!nameRegex.test(trimFirstName) || !nameRegex.test(trimLastName)) {
+            return "Le prénom et le nom ne doivent contenir que des lettres, espaces."
+        }
+
+        return ""
+    }
+
     const handleUpdate = async (e) => {
         e.preventDefault()
+        setError("")
+
+        const validationError = validateProfileFrom()
+
+        if (validationError) {
+            setError(validationError)
+            return
+        }
 
         try {
             await fetch(
@@ -56,22 +87,23 @@ function Profile() {
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
-                        firstName,
-                        lastName
+                        firstName: firstName.trim(),
+                        lastName: lastName.trim()
                     })
                 }
             )
 
             dispatch(setUser({
                 ...user,
-                firstName,
-                lastName
+                firstName: firstName.trim(),
+                lastName: lastName.trim()
             }))
 
             setIsEditing(false)
 
         } catch (error) {
-            console.error(error)
+            console.error("Failed to update user profile", error)
+            setError("Une erreur est survenue lors de la modification du profil")
         }
     }
 
@@ -109,11 +141,14 @@ function Profile() {
                             <input type="text" value={lastName} placeholder={user.lastName} onChange={(e) => setLastName(e.target.value)} />
                         </div>
 
+                        { error && <p className="error-message"> {error} </p> }
+
                         <div className="profile-buttons">
                             <button type="submit" className="edit-button"> Save </button>
                             <button type="button" className="edit-button" 
                             onClick={() => { setFirstName(user.firstName)
-                            setLastName(user.lastName)  
+                            setLastName(user.lastName)
+                            setError("")
                             setIsEditing(false)}}> Cancel </button>
                         </div>
                     </form>

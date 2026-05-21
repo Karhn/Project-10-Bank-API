@@ -8,11 +8,18 @@ import { login } from "../features/userSlice"
 function SignIn() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setError("")
+
+        if (!email.trim() || !password.trim()) {
+            setError("Veuillez renseigner votre email et votre mot de passe.")
+            return
+        }
 
         try {
             const response = await fetch(
@@ -23,7 +30,7 @@ function SignIn() {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        email,
+                        email: email.trim(),
                         password,
                     }),
                 }
@@ -31,16 +38,21 @@ function SignIn() {
 
             const data = await response.json()
 
+            if (!response.ok) {
+                setError("Email ou mot de passe incorrect.")
+                return
+            }
+
             if (data.status === 200) {
                 const token = data.body.token
                 localStorage.setItem("token", token)
                 dispatch(login(token))
                 navigate("/profile")
-            } else {
-                alert("Erreur de connexion")
-            }
+            } 
+
         } catch (error) {
-            console.error(error)
+            console.error("Failed to login", error)
+            setError("Email ou mot de passe incorrect.")
         }
     }
 
@@ -81,6 +93,8 @@ function SignIn() {
                             />
                             <label> Remember me </label>
                         </div>
+
+                        { error && <p className="error-message"> {error} </p> }
 
                         <button type="submit" className="sign-in-button">
                             Sign In
